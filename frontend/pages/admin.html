@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel | Goel Cake House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    body{background:var(--cream-dark)}
+    .admin-layout{display:flex;min-height:100vh;padding-top:72px}
+    .admin-sidebar{width:240px;flex-shrink:0;background:var(--choco);color:var(--cream);padding:28px 0;position:fixed;top:72px;bottom:0;overflow-y:auto}
+    .admin-brand{padding:0 24px 28px;border-bottom:1px solid rgba(253,246,238,.1);margin-bottom:16px}
+    .admin-brand h3{font-family:var(--font-display);font-size:1.1rem;color:var(--rose-light)}
+    .admin-brand p{font-size:.78rem;color:rgba(253,246,238,.5);margin-top:2px}
+    .sidebar-item{display:flex;align-items:center;gap:10px;padding:11px 24px;font-size:.88rem;cursor:pointer;transition:var(--transition);color:rgba(253,246,238,.7);font-weight:500}
+    .sidebar-item:hover,.sidebar-item.active{background:rgba(201,125,90,.15);color:var(--cream)}
+    .sidebar-item .si-icon{font-size:1.1rem;width:24px;text-align:center}
+    .admin-main{margin-left:240px;flex:1;padding:32px}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-bottom:32px}
+    .stat-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+    .stat-card .stat-label{font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+    .stat-card .stat-value{font-family:var(--font-display);font-size:2rem;color:var(--choco);font-weight:700;margin-bottom:4px}
+    .stat-card .stat-icon{font-size:1.8rem;float:right;margin-top:-8px}
+    .admin-section{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;display:none}
+    .admin-section.active{display:block}
+    .admin-section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .admin-section-title h2{font-family:var(--font-display);font-size:1.3rem;color:var(--choco)}
+    table{width:100%;border-collapse:collapse}
+    th{text-align:left;padding:10px 14px;font-size:.78rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--border)}
+    td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:.88rem;color:var(--text)}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--cream)}
+    .action-btns{display:flex;gap:6px}
+    .modal-form{display:none;position:fixed;inset:0;background:rgba(45,26,16,.6);backdrop-filter:blur(4px);z-index:2000;align-items:center;justify-content:center;padding:24px}
+    .modal-form.open{display:flex}
+    .modal-box{background:var(--white);border-radius:var(--radius);max-width:560px;width:100%;padding:32px;max-height:90vh;overflow-y:auto}
+    .modal-box h3{font-family:var(--font-display);font-size:1.3rem;color:var(--choco);margin-bottom:20px}
+    .modal-close{float:right;cursor:pointer;font-size:1.3rem;color:var(--text-muted);background:none;border:none;margin-top:-4px}
+    @media(max-width:768px){.admin-sidebar{display:none}.admin-main{margin-left:0}.stat-cards{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body>
+<nav class="navbar" id="navbar" style="background:var(--choco);border-color:rgba(253,246,238,.1)">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><span class="logo-icon">🎂</span><div class="logo-text"><span class="logo-main" style="color:var(--cream)">Goel Cake House</span><span class="logo-sub">Admin Panel</span></div></a>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span id="adminName" style="color:rgba(253,246,238,.7);font-size:.88rem"></span>
+      <button onclick="Auth.logout()" class="btn btn-sm" style="border-color:rgba(253,246,238,.3);color:var(--cream)">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-brand"><h3>Admin Panel</h3><p>Goel Cake House</p></div>
+    <div class="sidebar-item active" onclick="showSection('dashboard')"><span class="si-icon">📊</span> Dashboard</div>
+    <div class="sidebar-item" onclick="showSection('products')"><span class="si-icon">🎂</span> Products</div>
+    <div class="sidebar-item" onclick="showSection('orders')"><span class="si-icon">📦</span> Orders</div>
+    <div class="sidebar-item" onclick="showSection('customcakes')"><span class="si-icon">✨</span> Custom Cakes</div>
+    <div class="sidebar-item" onclick="showSection('users')"><span class="si-icon">👥</span> Users</div>
+  </aside>
+
+  <main class="admin-main">
+    <!-- Dashboard -->
+    <div class="admin-section active" id="sec-dashboard">
+      <div class="admin-section-title"><h2>Dashboard Overview</h2></div>
+      <div class="stat-cards">
+        <div class="stat-card"><div class="stat-label">Total Orders</div><div class="stat-value" id="st-orders">–</div><div class="stat-icon">📦</div></div>
+        <div class="stat-card"><div class="stat-label">Total Revenue</div><div class="stat-value" id="st-revenue">–</div><div class="stat-icon">💰</div></div>
+        <div class="stat-card"><div class="stat-label">Products</div><div class="stat-value" id="st-products">–</div><div class="stat-icon">🎂</div></div>
+        <div class="stat-card"><div class="stat-label">Customers</div><div class="stat-value" id="st-users">–</div><div class="stat-icon">👥</div></div>
+      </div>
+      <div class="stat-cards" style="grid-template-columns:1fr 1fr">
+        <div class="stat-card"><div class="stat-label">Pending Orders</div><div class="stat-value" id="st-pending" style="color:var(--warn)">–</div><div class="stat-icon">⏳</div></div>
+        <div class="stat-card"><div class="stat-label">Custom Requests</div><div class="stat-value" id="st-custom" style="color:var(--rose)">–</div><div class="stat-icon">✨</div></div>
+      </div>
+      <div class="admin-section-title" style="margin-top:8px"><h2>Recent Orders</h2></div>
+      <table><thead><tr><th>Order #</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody id="recentOrdersTable"><tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody></table>
+    </div>
+
+    <!-- Products -->
+    <div class="admin-section" id="sec-products">
+      <div class="admin-section-title">
+        <h2>Products</h2>
+        <button class="btn btn-primary btn-sm" onclick="openProductModal()">+ Add Product</button>
+      </div>
+      <table><thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Actions</th></tr></thead>
+      <tbody id="productsTable"><tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody></table>
+    </div>
+
+    <!-- Orders -->
+    <div class="admin-section" id="sec-orders">
+      <div class="admin-section-title"><h2>All Orders</h2>
+        <select id="orderStatusFilter" class="form-control" style="width:auto" onchange="loadAllOrders()">
+          <option value="">All Status</option>
+          <option value="placed">Placed</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="preparing">Preparing</option>
+          <option value="ready">Ready</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <table><thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Type</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="ordersTable"><tr><td colspan="7" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody></table>
+    </div>
+
+    <!-- Custom Cakes -->
+    <div class="admin-section" id="sec-customcakes">
+      <div class="admin-section-title"><h2>Custom Cake Requests</h2></div>
+      <table><thead><tr><th>Req #</th><th>Name</th><th>Phone</th><th>Occasion</th><th>Size</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="customTable"><tr><td colspan="8" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody></table>
+    </div>
+
+    <!-- Users -->
+    <div class="admin-section" id="sec-users">
+      <div class="admin-section-title"><h2>Customers</h2></div>
+      <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="usersTable"><tr><td colspan="6" style="text-align:center;color:var(--text-muted)">Loading...</td></tr></tbody></table>
+    </div>
+  </main>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-form" id="productModal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Add Product <button class="modal-close" onclick="closeProductModal()">✕</button></h3>
+    <form id="productForm" onsubmit="saveProduct(event)" enctype="multipart/form-data">
+      <input type="hidden" id="editProductId"/>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name *</label><input class="form-control" id="pName" required/></div>
+        <div class="form-group"><label class="form-label">Category *</label>
+          <select class="form-control" id="pCategory" required>
+            <option value="cakes">Cakes</option><option value="pastries">Pastries</option><option value="cookies">Cookies</option><option value="biscuits">Biscuits</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Description *</label><textarea class="form-control" id="pDesc" rows="3" required></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Price (₹) *</label><input class="form-control" type="number" id="pPrice" required/></div>
+        <div class="form-group"><label class="form-label">Discount Price (₹)</label><input class="form-control" type="number" id="pDiscPrice"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Weight</label><input class="form-control" id="pWeight" placeholder="e.g. 500g"/></div>
+        <div class="form-group"><label class="form-label">Stock</label><input class="form-control" type="number" id="pStock" value="999"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Tags (comma separated)</label><input class="form-control" id="pTags" placeholder="e.g. chocolate, birthday, popular"/></div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="pFeatured" style="accent-color:var(--rose)"/> Featured Product
+        </label>
+      </div>
+      <div class="form-group"><label class="form-label">Product Images</label><input class="form-control" type="file" id="pImages" accept="image/*" multiple/></div>
+      <div class="form-group"><label class="form-label">Or Image URL</label><input class="form-control" id="pImageUrl" placeholder="https://..."/></div>
+      <div id="productFormError" class="form-error" style="margin-bottom:12px;display:none"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeProductModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary btn-sm" id="saveProductBtn">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Order Status Modal -->
+<div class="modal-form" id="statusModal">
+  <div class="modal-box" style="max-width:380px">
+    <h3>Update Order Status <button class="modal-close" onclick="document.getElementById('statusModal').classList.remove('open')">✕</button></h3>
+    <input type="hidden" id="statusOrderId"/>
+    <div class="form-group"><label class="form-label">New Status</label>
+      <select class="form-control" id="newStatus">
+        <option value="confirmed">Confirmed</option>
+        <option value="preparing">Preparing</option>
+        <option value="ready">Ready for Pickup/Delivery</option>
+        <option value="out_for_delivery">Out for Delivery</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Message (optional)</label><input class="form-control" id="statusMessage" placeholder="Status update message"/></div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="updateStatus()">Update Status</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/cart.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!Auth.isAdmin()){ window.location.href='login.html'; return; }
+  document.getElementById('adminName').textContent = Auth.getUser()?.name || 'Admin';
+  loadDashboard();
+});
+
+function showSection(name){
+  document.querySelectorAll('.admin-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s=>s.classList.remove('active'));
+  document.getElementById('sec-'+name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if(name==='products') loadAdminProducts();
+  if(name==='orders') loadAllOrders();
+  if(name==='customcakes') loadCustomCakes();
+  if(name==='users') loadUsers();
+}
+
+async function loadDashboard(){
+  try {
+    const {data} = await API.get('/admin/stats');
+    document.getElementById('st-orders').textContent = data.totalOrders;
+    document.getElementById('st-revenue').textContent = '₹'+Number(data.totalRevenue).toLocaleString('en-IN');
+    document.getElementById('st-products').textContent = data.totalProducts;
+    document.getElementById('st-users').textContent = data.totalUsers;
+    document.getElementById('st-pending').textContent = data.pendingOrders;
+    document.getElementById('st-custom').textContent = data.pendingCustomRequests;
+    const tb = document.getElementById('recentOrdersTable');
+    if(data.recentOrders?.length){
+      tb.innerHTML = data.recentOrders.map(o=>`<tr>
+        <td><strong>${o.orderNumber}</strong></td>
+        <td>${o.user?.name||'–'}</td>
+        <td>₹${o.pricing?.total}</td>
+        <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+        <td>${UI.formatDate(o.createdAt)}</td>
+        <td><button class="btn btn-sm" onclick="openStatusModal('${o._id}')">Update</button></td>
+      </tr>`).join('');
+    }
+  } catch(e){ UI.toast('Failed to load dashboard','error'); }
+}
+
+async function loadAdminProducts(){
+  const tb = document.getElementById('productsTable');
+  try {
+    const {data} = await API.get('/products?limit=100');
+    tb.innerHTML = data.map(p=>`<tr>
+      <td><strong>${p.name}</strong></td>
+      <td style="text-transform:capitalize">${p.category}</td>
+      <td>₹${p.discountPrice||p.price}${p.discountPrice?` <s style="color:var(--text-muted);font-size:.8rem">₹${p.price}</s>`:''}</td>
+      <td>${p.stock}</td>
+      <td>${p.isFeatured?'⭐ Yes':'–'}</td>
+      <td><div class="action-btns">
+        <button class="btn btn-sm btn-outline" onclick="editProduct('${p._id}')">Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p._id}','${p.name}')">Delete</button>
+      </div></td>
+    </tr>`).join('');
+  } catch(e){ tb.innerHTML=`<tr><td colspan="6">Failed to load</td></tr>`; }
+}
+
+async function loadAllOrders(){
+  const tb = document.getElementById('ordersTable');
+  const status = document.getElementById('orderStatusFilter')?.value || '';
+  try {
+    const {data} = await API.get(`/orders${status?'?status='+status:''}`);
+    if(!data.length){ tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--text-muted)">No orders found</td></tr>'; return; }
+    tb.innerHTML = data.map(o=>`<tr>
+      <td><strong>${o.orderNumber}</strong></td>
+      <td>${o.user?.name||'–'}<br/><small>${o.user?.phone||''}</small></td>
+      <td>${o.items?.length} item(s)</td>
+      <td>₹${o.pricing?.total}</td>
+      <td style="text-transform:capitalize">${o.deliveryType}</td>
+      <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+      <td><button class="btn btn-sm btn-outline" onclick="openStatusModal('${o._id}')">Update</button></td>
+    </tr>`).join('');
+  } catch(e){ tb.innerHTML='<tr><td colspan="7">Failed to load</td></tr>'; }
+}
+
+async function loadCustomCakes(){
+  const tb = document.getElementById('customTable');
+  try {
+    const {data} = await API.get('/custom-cakes');
+    if(!data.length){ tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text-muted)">No requests yet</td></tr>'; return; }
+    tb.innerHTML = data.map(r=>`<tr>
+      <td><strong>${r.requestNumber}</strong></td>
+      <td>${r.contactName}</td>
+      <td><a href="tel:${r.contactPhone}">${r.contactPhone}</a></td>
+      <td style="text-transform:capitalize">${r.occasion}</td>
+      <td>${r.cakeSize}</td>
+      <td>${UI.formatDate(r.deliveryDate)}</td>
+      <td><span class="status-badge status-${r.status}">${r.status}</span></td>
+      <td>
+        <select class="form-control" style="width:auto;padding:6px 10px;font-size:.8rem" onchange="updateCakeStatus('${r._id}',this.value)">
+          <option>Update...</option>
+          <option value="reviewing">Reviewing</option>
+          <option value="quoted">Quoted</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="preparing">Preparing</option>
+          <option value="ready">Ready</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </td>
+    </tr>`).join('');
+  } catch(e){ tb.innerHTML='<tr><td colspan="8">Failed to load</td></tr>'; }
+}
+
+async function loadUsers(){
+  const tb = document.getElementById('usersTable');
+  try {
+    const {data} = await API.get('/admin/users');
+    tb.innerHTML = data.map(u=>`<tr>
+      <td><strong>${u.name}</strong></td>
+      <td>${u.email}</td>
+      <td>${u.phone||'–'}</td>
+      <td>${UI.formatDate(u.createdAt)}</td>
+      <td>${u.isActive?'<span style="color:var(--success)">Active</span>':'<span style="color:var(--error)">Inactive</span>'}</td>
+      <td><button class="btn btn-sm btn-outline" onclick="toggleUser('${u._id}')">${u.isActive?'Deactivate':'Activate'}</button></td>
+    </tr>`).join('');
+  } catch(e){ tb.innerHTML='<tr><td colspan="6">Failed to load</td></tr>'; }
+}
+
+function openProductModal(data=null){
+  document.getElementById('productModal').classList.add('open');
+  document.getElementById('modalTitle').childNodes[0].textContent = data?'Edit Product ':'Add Product ';
+  document.getElementById('editProductId').value = data?._id||'';
+  document.getElementById('pName').value = data?.name||'';
+  document.getElementById('pCategory').value = data?.category||'cakes';
+  document.getElementById('pDesc').value = data?.description||'';
+  document.getElementById('pPrice').value = data?.price||'';
+  document.getElementById('pDiscPrice').value = data?.discountPrice||'';
+  document.getElementById('pWeight').value = data?.weight||'';
+  document.getElementById('pStock').value = data?.stock||999;
+  document.getElementById('pTags').value = data?.tags?.join(', ')||'';
+  document.getElementById('pFeatured').checked = data?.isFeatured||false;
+  document.getElementById('productFormError').style.display='none';
+}
+
+function closeProductModal(){ document.getElementById('productModal').classList.remove('open'); }
+
+async function editProduct(id){
+  try {
+    const {data} = await API.get('/products/'+id);
+    openProductModal(data);
+  } catch(e){ UI.toast('Failed to load product','error'); }
+}
+
+async function saveProduct(e){
+  e.preventDefault();
+  const btn=document.getElementById('saveProductBtn'), err=document.getElementById('productFormError');
+  err.style.display='none'; btn.textContent='Saving...'; btn.disabled=true;
+  const id = document.getElementById('editProductId').value;
+  const fd = new FormData();
+  fd.append('name', document.getElementById('pName').value);
+  fd.append('category', document.getElementById('pCategory').value);
+  fd.append('description', document.getElementById('pDesc').value);
+  fd.append('price', document.getElementById('pPrice').value);
+  fd.append('discountPrice', document.getElementById('pDiscPrice').value);
+  fd.append('weight', document.getElementById('pWeight').value);
+  fd.append('stock', document.getElementById('pStock').value);
+  fd.append('isFeatured', document.getElementById('pFeatured').checked);
+  fd.append('tags', JSON.stringify(document.getElementById('pTags').value.split(',').map(t=>t.trim()).filter(Boolean)));
+  fd.append('imageUrl', document.getElementById('pImageUrl').value);
+  const files = document.getElementById('pImages').files;
+  for(const f of files) fd.append('images', f);
+  try {
+    if(id) await API.upload('/products/'+id, fd, 'PUT');
+    else await API.upload('/products', fd);
+    UI.toast(id?'Product updated!':'Product added!','success');
+    closeProductModal(); loadAdminProducts();
+  } catch(ex){ err.textContent=ex.message; err.style.display='block'; }
+  btn.textContent='Save Product'; btn.disabled=false;
+}
+
+async function deleteProduct(id, name){
+  if(!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try { await API.delete('/products/'+id); UI.toast('Product deleted'); loadAdminProducts(); }
+  catch(e){ UI.toast(e.message,'error'); }
+}
+
+function openStatusModal(orderId){
+  document.getElementById('statusOrderId').value = orderId;
+  document.getElementById('statusModal').classList.add('open');
+}
+
+async function updateStatus(){
+  const id = document.getElementById('statusOrderId').value;
+  const status = document.getElementById('newStatus').value;
+  const message = document.getElementById('statusMessage').value;
+  try {
+    await API.put(`/orders/${id}/status`, {status, message});
+    UI.toast('Status updated!','success');
+    document.getElementById('statusModal').classList.remove('open');
+    loadAllOrders(); loadDashboard();
+  } catch(e){ UI.toast(e.message,'error'); }
+}
+
+async function updateCakeStatus(id, status){
+  if(status==='Update...') return;
+  try { await API.put('/custom-cakes/'+id, {status}); UI.toast('Status updated!','success'); loadCustomCakes(); }
+  catch(e){ UI.toast(e.message,'error'); }
+}
+
+async function toggleUser(id){
+  try { await API.put('/admin/users/'+id+'/toggle'); UI.toast('User status updated'); loadUsers(); }
+  catch(e){ UI.toast(e.message,'error'); }
+}
+</script>
+</body>
+</html>

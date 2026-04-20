@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Custom Cake Order | Goel Cake House</title>
+  <meta name="description" content="Order a custom eggless cake for any occasion. Birthday, wedding, anniversary – any theme, any size."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .custom-page{padding-top:72px}
+    .custom-layout{padding:60px 0 80px}
+    .custom-grid{display:grid;grid-template-columns:1fr 380px;gap:40px;align-items:start}
+    .form-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:36px}
+    .form-card h2{font-family:var(--font-display);font-size:1.6rem;color:var(--choco);margin-bottom:6px}
+    .form-card .subtitle{color:var(--text-muted);font-size:.9rem;margin-bottom:28px}
+    .form-section-title{font-family:var(--font-display);font-size:1rem;color:var(--choco);margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+    .cake-size-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px}
+    .size-opt{border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 8px;text-align:center;cursor:pointer;transition:var(--transition)}
+    .size-opt:hover,.size-opt.selected{border-color:var(--rose);background:rgba(201,125,90,.06)}
+    .size-opt input{display:none}
+    .size-opt .sz-val{font-weight:700;font-size:1rem;color:var(--choco)}
+    .size-opt .sz-lbl{font-size:.72rem;color:var(--text-muted);margin-top:2px}
+    .info-card{background:var(--choco);color:var(--cream);border-radius:var(--radius);padding:32px;position:sticky;top:100px}
+    .info-card h3{font-family:var(--font-display);font-size:1.3rem;margin-bottom:20px;color:var(--rose-light)}
+    .info-item{display:flex;gap:12px;margin-bottom:18px}
+    .info-icon{font-size:1.4rem;flex-shrink:0}
+    .info-text h4{font-size:.9rem;font-weight:600;color:var(--cream);margin-bottom:2px}
+    .info-text p{font-size:.82rem;color:rgba(253,246,238,.7);line-height:1.5}
+    .price-est{background:rgba(201,125,90,.2);border:1px solid rgba(201,125,90,.3);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px}
+    .price-est h4{color:var(--rose-light);font-size:.85rem;font-weight:600;margin-bottom:6px}
+    .price-range-disp{font-family:var(--font-display);font-size:1.4rem;color:var(--cream)}
+    .file-upload{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;transition:var(--transition)}
+    .file-upload:hover{border-color:var(--rose);background:rgba(201,125,90,.04)}
+    .file-upload input{display:none}
+    .file-upload .upload-icon{font-size:2rem;margin-bottom:8px}
+    .file-upload p{font-size:.85rem;color:var(--text-muted)}
+    .success-state{display:none;text-align:center;padding:40px}
+    .success-icon{font-size:4rem;margin-bottom:16px}
+    @media(max-width:768px){.custom-grid{grid-template-columns:1fr}.info-card{position:static}.cake-size-grid{grid-template-columns:repeat(2,1fr)}}
+  </style>
+</head>
+<body class="custom-page">
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><span class="logo-icon">🎂</span><div class="logo-text"><span class="logo-main">Goel Cake House</span><span class="logo-sub">100% Eggless · Homemade</span></div></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html" class="nav-link">Home</a></li>
+      <li><a href="products.html" class="nav-link">Products</a></li>
+      <li><a href="custom-cake.html" class="nav-link active">Custom Cake</a></li>
+      <li><a href="cart.html" class="nav-link cart-nav-link">Cart <span class="cart-badge" id="cartBadge" style="display:none">0</span></a></li>
+      <li id="authNavItem"><a href="login.html" class="nav-link nav-cta">Login</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <h1>Custom Cake Order</h1>
+    <p>Tell us your dream cake — we'll make it real, 100% eggless</p>
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Custom Cake</span></div>
+  </div>
+</div>
+
+<div class="custom-layout">
+  <div class="container">
+    <div class="custom-grid">
+      <div class="form-card">
+        <h2>Request Your Custom Cake</h2>
+        <p class="subtitle">Fill in your details and we'll get back to you within 24 hours with a quote.</p>
+        
+        <div id="formContent">
+          <form id="customCakeForm" onsubmit="submitRequest(event)" enctype="multipart/form-data">
+            <div class="form-section-title">📞 Your Contact Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input class="form-control" type="text" id="contactName" placeholder="Your Name" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input class="form-control" type="tel" id="contactPhone" placeholder="9876543210" required/>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email (optional)</label>
+              <input class="form-control" type="email" id="contactEmail" placeholder="for order updates"/>
+            </div>
+
+            <div class="form-section-title">🎂 Cake Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Occasion *</label>
+                <select class="form-control" id="occasion" required>
+                  <option value="">Select occasion</option>
+                  <option value="birthday">🎂 Birthday</option>
+                  <option value="wedding">💍 Wedding</option>
+                  <option value="anniversary">❤️ Anniversary</option>
+                  <option value="baby_shower">👶 Baby Shower</option>
+                  <option value="graduation">🎓 Graduation</option>
+                  <option value="festival">🪔 Festival</option>
+                  <option value="corporate">🏢 Corporate</option>
+                  <option value="other">✨ Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Flavour *</label>
+                <select class="form-control" id="flavour" required>
+                  <option value="">Select flavour</option>
+                  <option value="Vanilla">Vanilla</option>
+                  <option value="Chocolate">Chocolate</option>
+                  <option value="Strawberry">Strawberry</option>
+                  <option value="Black Forest">Black Forest</option>
+                  <option value="Red Velvet">Red Velvet</option>
+                  <option value="Butterscotch">Butterscotch</option>
+                  <option value="Pineapple">Pineapple</option>
+                  <option value="Mango">Mango</option>
+                  <option value="Mix Fruit">Mix Fruit</option>
+                  <option value="Custom">Custom (mention below)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Cake Size *</label>
+              <div class="cake-size-grid">
+                <label class="size-opt selected" onclick="selectSize(this,'0.5kg')"><input type="radio" name="cakeSize" value="0.5kg" checked/><div class="sz-val">0.5 kg</div><div class="sz-lbl">Serves 4–6</div></label>
+                <label class="size-opt" onclick="selectSize(this,'1kg')"><input type="radio" name="cakeSize" value="1kg"/><div class="sz-val">1 kg</div><div class="sz-lbl">Serves 8–10</div></label>
+                <label class="size-opt" onclick="selectSize(this,'1.5kg')"><input type="radio" name="cakeSize" value="1.5kg"/><div class="sz-val">1.5 kg</div><div class="sz-lbl">Serves 12–15</div></label>
+                <label class="size-opt" onclick="selectSize(this,'2kg')"><input type="radio" name="cakeSize" value="2kg"/><div class="sz-val">2 kg</div><div class="sz-lbl">Serves 18–20</div></label>
+                <label class="size-opt" onclick="selectSize(this,'3kg')"><input type="radio" name="cakeSize" value="3kg"/><div class="sz-val">3 kg</div><div class="sz-lbl">Serves 28–30</div></label>
+                <label class="size-opt" onclick="selectSize(this,'5kg+')"><input type="radio" name="cakeSize" value="5kg+"/><div class="sz-val">5 kg+</div><div class="sz-lbl">Large event</div></label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Theme / Design</label>
+                <input class="form-control" type="text" id="theme" placeholder="e.g. Superhero, Floral, Frozen"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Number of Tiers</label>
+                <select class="form-control" id="tiers">
+                  <option value="1">1 Tier</option>
+                  <option value="2">2 Tiers</option>
+                  <option value="3">3 Tiers</option>
+                  <option value="4">4 Tiers</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Message on Cake</label>
+              <input class="form-control" type="text" id="cakeMessage" placeholder="e.g. Happy Birthday Priya! 🎉"/>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Special Requirements</label>
+              <textarea class="form-control" id="specialReq" rows="3" placeholder="Any specific decorations, colours, dietary notes..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Reference Image (optional)</label>
+              <div class="file-upload" onclick="document.getElementById('refImage').click()">
+                <input type="file" id="refImage" accept="image/*"/>
+                <div class="upload-icon">📸</div>
+                <p>Click to upload a reference image<br/><small>Max 5MB · JPG, PNG, WEBP</small></p>
+                <p id="fileName" style="color:var(--rose);font-weight:600;margin-top:6px"></p>
+              </div>
+            </div>
+
+            <div class="form-section-title">📅 Delivery Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Required Date *</label>
+                <input class="form-control" type="date" id="deliveryDate" required/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Delivery Type</label>
+                <select class="form-control" id="deliveryType">
+                  <option value="pickup">🏪 Store Pickup</option>
+                  <option value="delivery">🚚 Home Delivery</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" id="addressField" style="display:none">
+              <label class="form-label">Delivery Address</label>
+              <textarea class="form-control" id="deliveryAddress" rows="2" placeholder="Full address with landmark"></textarea>
+            </div>
+
+            <div id="formError" class="form-error" style="margin-bottom:16px;display:none"></div>
+            <button class="btn btn-primary" type="submit" style="width:100%;justify-content:center;margin-top:8px" id="submitBtn">
+              Submit Custom Cake Request
+            </button>
+          </form>
+        </div>
+
+        <div class="success-state" id="successState">
+          <div class="success-icon">🎂</div>
+          <h2 style="font-family:var(--font-display);color:var(--choco);margin-bottom:12px">Request Submitted!</h2>
+          <p style="color:var(--text-muted);margin-bottom:24px">We'll contact you within 24 hours with a quote and confirmation. Thank you!</p>
+          <a id="waConfirmLink" href="#" target="_blank" class="btn btn-wa" style="display:inline-flex;margin-bottom:12px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Confirm via WhatsApp
+          </a>
+          <br/><a href="products.html" class="btn btn-outline btn-sm">Browse Products</a>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>How It Works</h3>
+        <div class="info-item"><div class="info-icon">📝</div><div class="info-text"><h4>1. Submit Your Request</h4><p>Fill in the form with your cake details, theme, and delivery date.</p></div></div>
+        <div class="info-item"><div class="info-icon">📞</div><div class="info-text"><h4>2. We'll Contact You</h4><p>Our team will call/WhatsApp you within 24 hours with pricing and confirmation.</p></div></div>
+        <div class="info-item"><div class="info-icon">💳</div><div class="info-text"><h4>3. Advance Payment</h4><p>A small advance is required to confirm your custom cake order.</p></div></div>
+        <div class="info-item"><div class="info-icon">🎂</div><div class="info-text"><h4>4. Freshly Baked</h4><p>Your cake is baked fresh on the day and ready for pickup or delivery.</p></div></div>
+
+        <div class="price-est">
+          <h4>Estimated Price Range</h4>
+          <div class="price-range-disp" id="priceEstDisplay">₹499 – ₹699</div>
+          <div style="font-size:.75rem;color:rgba(253,246,238,.6);margin-top:4px">Based on selected size · Final price on confirmation</div>
+        </div>
+
+        <a href="https://wa.me/919592285145?text=Hi!%20I%20want%20to%20discuss%20a%20custom%20cake%20order." target="_blank" class="btn btn-wa" style="width:100%;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
+        <p style="text-align:center;font-size:.78rem;color:rgba(253,246,238,.5);margin-top:12px">Or call: <a href="tel:9592285145" style="color:var(--rose-light)">9592285145</a></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Goel Cake House · 11/57 Anaj Mandi, Jalandhar Cantt · <a href="tel:9592285145" style="color:var(--rose-light)">9592285145</a></p></div></div></footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/cart.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+const sizePrices = {'0.5kg':[499,699],'1kg':[799,1099],'1.5kg':[1099,1499],'2kg':[1499,1999],'3kg':[2299,2999],'5kg+':[3500,5000]};
+
+function selectSize(el, size){
+  document.querySelectorAll('.size-opt').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+  const [min,max] = sizePrices[size]||[499,699];
+  document.getElementById('priceEstDisplay').textContent = `₹${min} – ₹${max}`;
+}
+
+document.getElementById('refImage')?.addEventListener('change', e=>{
+  const f = e.target.files[0];
+  document.getElementById('fileName').textContent = f ? '✓ '+f.name : '';
+});
+document.getElementById('deliveryType')?.addEventListener('change', e=>{
+  document.getElementById('addressField').style.display = e.target.value==='delivery'?'block':'none';
+});
+// Set minimum date to tomorrow
+const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+document.getElementById('deliveryDate').min = tomorrow.toISOString().split('T')[0];
+
+// Pre-fill from auth
+document.addEventListener('DOMContentLoaded', ()=>{
+  const user = Auth.getUser();
+  if(user){
+    document.getElementById('contactName').value = user.name || '';
+    document.getElementById('contactPhone').value = user.phone || '';
+    document.getElementById('contactEmail').value = user.email || '';
+  }
+});
+
+async function submitRequest(e){
+  e.preventDefault();
+  const btn=document.getElementById('submitBtn'), err=document.getElementById('formError');
+  err.style.display='none'; btn.textContent='Submitting...'; btn.disabled=true;
+  try {
+    const size = document.querySelector('input[name="cakeSize"]:checked')?.value || '1kg';
+    const fd = new FormData();
+    fd.append('contactName', document.getElementById('contactName').value);
+    fd.append('contactPhone', document.getElementById('contactPhone').value);
+    fd.append('contactEmail', document.getElementById('contactEmail').value);
+    fd.append('occasion', document.getElementById('occasion').value);
+    fd.append('flavour', document.getElementById('flavour').value);
+    fd.append('cakeSize', size);
+    fd.append('theme', document.getElementById('theme').value);
+    fd.append('tiers', document.getElementById('tiers').value);
+    fd.append('cakeMessage', document.getElementById('cakeMessage').value);
+    fd.append('specialRequirements', document.getElementById('specialReq').value);
+    fd.append('deliveryDate', document.getElementById('deliveryDate').value);
+    fd.append('deliveryType', document.getElementById('deliveryType').value);
+    fd.append('deliveryAddress', document.getElementById('deliveryAddress').value);
+    const imgFile = document.getElementById('refImage').files[0];
+    if(imgFile) fd.append('referenceImage', imgFile);
+
+    const result = await API.upload('/custom-cakes', fd);
+    document.getElementById('formContent').style.display='none';
+    document.getElementById('successState').style.display='block';
+    if(result.whatsappLink) document.getElementById('waConfirmLink').href = result.whatsappLink;
+  } catch(ex){
+    err.textContent = ex.message; err.style.display='block';
+    btn.textContent='Submit Custom Cake Request'; btn.disabled=false;
+  }
+}
+</script>
+</body>
+</html>

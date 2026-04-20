@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Details | Goel Cake House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .detail-page{padding-top:72px}
+    .detail-layout{padding:60px 0 80px}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
+    .detail-img-main{aspect-ratio:1;border-radius:var(--radius);overflow:hidden;background:var(--cream-dark)}
+    .detail-img-main img{width:100%;height:100%;object-fit:cover}
+    .detail-thumbs{display:flex;gap:12px;margin-top:12px}
+    .thumb{width:72px;height:72px;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:var(--transition)}
+    .thumb:hover,.thumb.active{border-color:var(--rose)}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .detail-info{position:sticky;top:100px}
+    .detail-category{font-size:.75rem;color:var(--rose);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .detail-name{font-family:var(--font-display);font-size:clamp(1.6rem,3vw,2.4rem);color:var(--choco);margin-bottom:12px;line-height:1.2}
+    .detail-rating{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:.9rem;color:var(--text-muted)}
+    .detail-rating .stars{color:#f0a500;font-size:1rem}
+    .detail-price{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+    .detail-price-cur{font-family:var(--font-display);font-size:2rem;color:var(--choco);font-weight:700}
+    .detail-price-orig{font-size:1.1rem;color:var(--text-muted);text-decoration:line-through}
+    .detail-price-save{background:rgba(45,122,74,.12);color:var(--success);padding:4px 10px;border-radius:99px;font-size:.82rem;font-weight:700}
+    .detail-desc{color:var(--text-muted);line-height:1.75;margin-bottom:24px}
+    .detail-meta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+    .meta-chip{display:inline-flex;align-items:center;gap:6px;background:var(--cream-dark);border:1px solid var(--border);padding:6px 14px;border-radius:99px;font-size:.82rem;color:var(--text-muted)}
+    .qty-row{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+    .qty-ctrl{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:var(--radius-sm);overflow:hidden}
+    .qty-btn{width:40px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:var(--rose);transition:var(--transition);cursor:pointer;background:none;border:none}
+    .qty-btn:hover{background:rgba(201,125,90,.08)}
+    .qty-val{width:48px;text-align:center;font-weight:700;font-size:1rem;border:none;outline:none;background:none;font-family:inherit}
+    .detail-actions{display:flex;gap:12px;flex-wrap:wrap}
+    .ingr-section{margin-top:28px;padding-top:28px;border-top:1px solid var(--border)}
+    .ingr-section h4{font-family:var(--font-display);font-size:1.1rem;color:var(--choco);margin-bottom:12px}
+    .ingr-tags{display:flex;flex-wrap:wrap;gap:8px}
+    .ingr-tag{background:var(--cream-dark);border:1px solid var(--border);padding:4px 12px;border-radius:99px;font-size:.8rem;color:var(--text-muted)}
+    @media(max-width:768px){.detail-grid{grid-template-columns:1fr}.detail-info{position:static}}
+  </style>
+</head>
+<body class="detail-page">
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><span class="logo-icon">🎂</span><div class="logo-text"><span class="logo-main">Goel Cake House</span><span class="logo-sub">100% Eggless · Homemade</span></div></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html" class="nav-link">Home</a></li>
+      <li><a href="products.html" class="nav-link active">Products</a></li>
+      <li><a href="custom-cake.html" class="nav-link">Custom Cake</a></li>
+      <li><a href="cart.html" class="nav-link cart-nav-link">Cart <span class="cart-badge" id="cartBadge" style="display:none">0</span></a></li>
+      <li id="authNavItem"><a href="login.html" class="nav-link nav-cta">Login</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="detail-layout">
+  <div class="container">
+    <div class="breadcrumb" style="margin-bottom:28px;justify-content:flex-start;color:var(--text-muted)">
+      <a href="../index.html" style="color:var(--rose)">Home</a><span>/</span>
+      <a href="products.html" style="color:var(--rose)">Products</a><span>/</span>
+      <span id="breadcrumbName">Product</span>
+    </div>
+    <div id="productContent">
+      <div class="detail-grid">
+        <div class="skeleton-card" style="aspect-ratio:1;height:auto"></div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="skeleton-card" style="height:28px;width:60%"></div>
+          <div class="skeleton-card" style="height:48px;width:90%"></div>
+          <div class="skeleton-card" style="height:20px;width:40%"></div>
+          <div class="skeleton-card" style="height:80px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<a href="https://wa.me/919592285145" class="wa-float" target="_blank"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+<footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Goel Cake House · <a href="tel:9592285145" style="color:var(--rose-light)">9592285145</a></p></div></div></footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/cart.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/staticProducts.js"></script>
+<script>
+let product = null, qty = 1;
+function setQty(n){ qty = Math.max(1, n); document.getElementById('qtyVal').value = qty; }
+
+async function loadProduct(){
+  const id = new URLSearchParams(window.location.search).get('id');
+  if(!id){ document.getElementById('productContent').innerHTML='<div class="empty-state"><div class="empty-icon">😕</div><h3>Product not found</h3><a href="products.html" class="btn btn-primary">Back to Products</a></div>'; return; }
+  try {
+    const { data } = await API.get(`/products/${id}`);
+    product = data;
+    renderProduct(data);
+  } catch(e){
+    // Try static fallback
+    const staticP = findStaticProduct(id);
+    if (staticP) { product = staticP; renderProduct(staticP); return; }
+    document.getElementById('productContent').innerHTML=`<div class="empty-state"><div class="empty-icon">😕</div><h3>Failed to load</h3><p>${e.message}</p><a href="products.html" class="btn btn-primary">Back</a></div>`;
+  }
+}
+
+function renderProduct(p){
+  const price = p.discountPrice || p.price;
+  const hasDisc = p.discountPrice && p.discountPrice < p.price;
+  const discount = hasDisc ? Math.round((1-p.discountPrice/p.price)*100) : 0;
+  const imgs = p.images?.length ? p.images : [{url:'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600',alt:p.name}];
+  document.getElementById('breadcrumbName').textContent = p.name;
+  document.title = `${p.name} | Goel Cake House`;
+  const waMsg = encodeURIComponent(`Hi! I want to order "${p.name}" (₹${price}). Please confirm availability.`);
+  document.getElementById('productContent').innerHTML = `
+    <div class="detail-grid">
+      <div>
+        <div class="detail-img-main"><img src="${imgs[0].url}" alt="${p.name}" id="mainImg" onerror="this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600'"/></div>
+        ${imgs.length>1?`<div class="detail-thumbs">${imgs.map((im,i)=>`<div class="thumb ${i===0?'active':''}" onclick="switchImg('${im.url}',this)"><img src="${im.url}" alt=""/></div>`).join('')}</div>`:''}
+      </div>
+      <div class="detail-info">
+        <div class="detail-category">${p.category}</div>
+        <h1 class="detail-name">${p.name}</h1>
+        <div class="detail-rating">
+          <span class="stars">${'★'.repeat(Math.round(p.rating?.average||4))}</span>
+          <span>${p.rating?.average?.toFixed(1)||'4.5'}</span>
+          <span>(${p.rating?.count||0} reviews)</span>
+        </div>
+        <div class="detail-price">
+          <span class="detail-price-cur">₹${price}</span>
+          ${hasDisc?`<span class="detail-price-orig">₹${p.price}</span><span class="detail-price-save">Save ${discount}%</span>`:''}
+        </div>
+        <p class="detail-desc">${p.description}</p>
+        <div class="detail-meta">
+          ${p.isEggless?'<span class="meta-chip">🌿 100% Eggless</span>':''}
+          ${p.weight?`<span class="meta-chip">⚖️ ${p.weight}</span>`:''}
+          <span class="meta-chip">🏠 Homemade</span>
+        </div>
+        <div class="qty-row">
+          <span style="font-weight:600;font-size:.9rem;color:var(--choco)">Quantity:</span>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="setQty(qty-1)">−</button>
+            <input class="qty-val" id="qtyVal" value="1" readonly/>
+            <button class="qty-btn" onclick="setQty(qty+1)">+</button>
+          </div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" onclick="addProductToCart()" style="flex:1">🛒 Add to Cart</button>
+          <a href="https://wa.me/919592285145?text=${waMsg}" target="_blank" class="btn btn-wa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Order via WhatsApp
+          </a>
+        </div>
+        ${p.ingredients?.length?`<div class="ingr-section"><h4>Ingredients</h4><div class="ingr-tags">${p.ingredients.map(i=>`<span class="ingr-tag">${i}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>`;
+}
+
+function switchImg(url, el){
+  document.getElementById('mainImg').src = url;
+  document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function addProductToCart(){
+  if(product){ Cart.add(product, qty); }
+}
+
+document.addEventListener('DOMContentLoaded', loadProduct);
+</script>
+</body>
+</html>

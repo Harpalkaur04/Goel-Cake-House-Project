@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders | Goel Cake House</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+  <style>
+    .orders-page{padding-top:72px}
+    .orders-layout{padding:60px 0 80px}
+    .order-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px;transition:var(--transition)}
+    .order-card:hover{box-shadow:var(--shadow-sm)}
+    .order-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px}
+    .order-num{font-family:var(--font-display);font-size:1.05rem;color:var(--choco);font-weight:700}
+    .order-date{font-size:.82rem;color:var(--text-muted)}
+    .status-badge{padding:5px 14px;border-radius:99px;font-size:.78rem;font-weight:700;text-transform:capitalize;letter-spacing:.04em}
+    .status-placed{background:rgba(184,120,32,.12);color:var(--warn)}
+    .status-confirmed{background:rgba(37,150,190,.12);color:#25a0be}
+    .status-preparing{background:rgba(130,80,180,.12);color:#8250b4}
+    .status-ready{background:rgba(45,122,74,.12);color:var(--success)}
+    .status-out_for_delivery{background:rgba(37,150,190,.15);color:#1e7ea0}
+    .status-delivered{background:rgba(45,122,74,.15);color:var(--success)}
+    .status-cancelled{background:rgba(184,50,50,.12);color:var(--error)}
+    .order-items-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+    .order-item-chip{display:flex;align-items:center;gap:8px;background:var(--cream-dark);border-radius:8px;padding:6px 12px;font-size:.82rem}
+    .order-item-chip img{width:32px;height:32px;border-radius:6px;object-fit:cover}
+    .order-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border)}
+    .order-total{font-weight:700;color:var(--choco);font-size:1.05rem}
+    .order-actions{display:flex;gap:8px}
+    .track-bar{display:flex;align-items:center;gap:0;margin:16px 0}
+    .track-step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative}
+    .track-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;z-index:1;transition:var(--transition)}
+    .track-dot.done{background:var(--success);color:#fff}
+    .track-dot.active{background:var(--rose);color:#fff;box-shadow:0 0 0 4px rgba(201,125,90,.2)}
+    .track-dot.pending{background:var(--cream-dark);color:var(--text-muted)}
+    .track-label{font-size:.68rem;color:var(--text-muted);margin-top:4px;text-align:center}
+    .track-line{position:absolute;top:14px;left:50%;right:-50%;height:2px;background:var(--border);z-index:0}
+    .track-line.done{background:var(--success)}
+  </style>
+</head>
+<body class="orders-page">
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo"><span class="logo-icon">🎂</span><div class="logo-text"><span class="logo-main">Goel Cake House</span><span class="logo-sub">100% Eggless · Homemade</span></div></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../index.html" class="nav-link">Home</a></li>
+      <li><a href="products.html" class="nav-link">Products</a></li>
+      <li><a href="cart.html" class="nav-link cart-nav-link">Cart <span class="cart-badge" id="cartBadge" style="display:none">0</span></a></li>
+      <li id="authNavItem"><a href="login.html" class="nav-link nav-cta">Login</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <h1>My Orders</h1>
+    <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><span>Orders</span></div>
+  </div>
+</div>
+
+<div class="orders-layout">
+  <div class="container" style="max-width:860px">
+    <div id="ordersContent"><div class="empty-state"><div class="empty-icon">📦</div><h3>Loading orders...</h3></div></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<footer class="footer"><div class="container"><div class="footer-bottom"><p>&copy; 2024 Goel Cake House</p></div></div></footer>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/cart.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/ui.js"></script>
+<script>
+const STATUS_STEPS = ['placed','confirmed','preparing','ready','out_for_delivery','delivered'];
+const STATUS_LABELS = {placed:'Placed',confirmed:'Confirmed',preparing:'Preparing',ready:'Ready',out_for_delivery:'On the Way',delivered:'Delivered',cancelled:'Cancelled'};
+const STATUS_ICONS = {placed:'📝',confirmed:'✅',preparing:'👨‍🍳',ready:'🎂',out_for_delivery:'🛵',delivered:'🏠',cancelled:'❌'};
+
+function trackBar(status){
+  if(status==='cancelled') return `<div style="color:var(--error);font-weight:600;font-size:.9rem">❌ Order Cancelled</div>`;
+  const cur = STATUS_STEPS.indexOf(status);
+  return `<div class="track-bar">${STATUS_STEPS.map((s,i)=>`
+    <div class="track-step">
+      ${i<STATUS_STEPS.length-1?`<div class="track-line ${i<cur?'done':''}"></div>`:''}
+      <div class="track-dot ${i<cur?'done':i===cur?'active':'pending'}">${STATUS_ICONS[s]}</div>
+      <div class="track-label">${STATUS_LABELS[s]}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+async function loadOrders(){
+  if(!Auth.requireAuth()) return;
+  const el = document.getElementById('ordersContent');
+  try {
+    const {data} = await API.get('/orders/my-orders');
+    if(!data.length){
+      el.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Your orders will appear here once placed.</p><a href="products.html" class="btn btn-primary">Shop Now</a></div>`;
+      return;
+    }
+    el.innerHTML = data.map(order=>{
+      const items = order.items||[];
+      return `<div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-num">Order #${order.orderNumber}</div>
+            <div class="order-date">${UI.formatDate(order.createdAt)} · ${order.deliveryType==='pickup'?'🏪 Pickup':'🚚 Delivery'} · ${order.paymentMethod==='cod'?'💵 COD':'💳 Online'}</div>
+          </div>
+          <span class="status-badge status-${order.status}">${STATUS_LABELS[order.status]||order.status}</span>
+        </div>
+        ${trackBar(order.status)}
+        <div class="order-items-list">
+          ${items.map(i=>`<div class="order-item-chip"><img src="${i.image||'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=80'}" alt="${i.name}" onerror="this.src='https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=80'"/><span>${i.name} ×${i.quantity}</span></div>`).join('')}
+        </div>
+        <div class="order-footer">
+          <div class="order-total">Total: ${UI.formatPrice(order.pricing?.total)}</div>
+          <div class="order-actions">
+            ${['placed','confirmed'].includes(order.status)?`<button class="btn btn-sm btn-danger" onclick="cancelOrder('${order._id}')">Cancel</button>`:''}
+            <a href="https://wa.me/919592285145?text=Hi!%20Order%20${order.orderNumber}%20status%20query." target="_blank" class="btn btn-sm btn-wa">WhatsApp</a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">😕</div><h3>Failed to load orders</h3><p>${e.message}</p></div>`;
+  }
+}
+
+async function cancelOrder(id){
+  if(!confirm('Cancel this order?')) return;
+  try {
+    await API.put(`/orders/${id}/cancel`,{reason:'Cancelled by customer'});
+    UI.toast('Order cancelled','success');
+    loadOrders();
+  } catch(e){ UI.toast(e.message,'error'); }
+}
+
+document.addEventListener('DOMContentLoaded', loadOrders);
+</script>
+</body>
+</html>
